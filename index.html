@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+
+        <meta name="viewport" content="width=device-width, initial-scale=1" /> 
+
+        <title>Flashcards</title>
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300&display=swap" rel="stylesheet">
+    
+        <style>
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: black;
+        }
+        
+        .scene {
+            width: 600px;
+            height: 250px;
+            perspective: 600px;
+            margin: auto;
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            transition: transform 0.5s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .card.is-flipped {
+            transform: rotateX(180deg);
+        }
+
+        .card_face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            line-height: 250px;
+            color: white;
+            border: 2px solid #5a6d7c;
+            text-align: center;
+            font-weight: bold;
+            font-size: 40px;
+            transition: 1.0s;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+        }
+
+        .card_face--back {
+            transform: rotateX(180deg);
+        }
+
+        .card_face:hover {
+            background-color: #002451 ;
+            color: #e3f2ff;
+        }
+
+        .nice_button {
+            color: white;
+            border: 2px solid #5a6d7c;
+            border-radius: 5px;
+            background-color: black;
+            width: 24.4%;
+            font-size: 20px;
+            transition: 1.0s;
+        }
+
+        .nice_button:hover {
+            background-color: #002451 ;
+            color: #e3f2ff;
+        }
+
+        .nice_button--side {
+            width: 80%;
+            border-radius: 0px;
+        }
+        
+        .hidden_div {
+            opacity: 0;
+            font-size: 0px;
+        }
+
+        .right_div {
+            float: right;
+            height: 250px;
+            text-align: center;
+            margin-right: 10%;
+        }
+        </style>
+    
+    </head>
+
+<body>
+
+    <br><br><br><br>
+
+    <div class="right_div">
+        <button class="nice_button nice_button--side" id="soon">I saw this card too soon</button>
+        <br><br><button class="nice_button nice_button--side" id="late">I saw this card too late</button>
+    </div>
+
+    <div class="scene">
+        <div class="card">
+            <div class="card_face card_face--front" id="front"></div>
+            <div class="card_face card_face--back" id="back"></div>
+        </div>
+        <br>
+        <div>
+            <button class="nice_button" id="vu">Very Unsure</button>
+            <button class="nice_button" id="u">Unsure</button>
+            <button class="nice_button" id="s">Sure</button>
+            <button class="nice_button" id="vs">Very Sure</button>
+        </div>
+    </div>
+
+    <div class="hidden_div" id="words">ähnlich#similar#
+anders#different(ly)#
+Gegenteil das#opposite#
+gleich#same, equal#
+hoch; höher; höchst#high; higher; highest#
+im Großen und Ganzen#by and large#
+so … wie#as … as#
+so viel(e) … wie#as much/many … as#
+Unterschied der#difference#
+unterschiedlich#different#
+vergleichen#to compare#
+Vergleich der#comparison#
+verschieden#different#
+viel; mehr; am meisten#much; more; most#
+wenigstens#at least#</div>
+
+    <script>
+        const words = document.getElementById('words').innerHTML;
+        let word_list = words.split("\n");
+        let i = 1;
+        let buttons = [];
+        const names  = ['vu', 'u', 's', 'vs'];
+        let frontside = true
+
+        document.getElementById('front').innerHTML = word_list[0].split('#')[1];
+        document.getElementById('back').innerHTML = word_list[0].split('#')[0];
+
+        let wait_times = [];
+        
+        for (let k = 0; k < 4; k++) {
+            wait_times[k] = parseInt(word_list.length*0.2*(k + 1));
+        }
+        
+        let card = document.querySelector('.card');
+        card.addEventListener('click', function() {
+            card.classList.toggle('is-flipped');
+            frontside = !frontside;
+        });
+
+
+        for (let j = 0; j < 4; j++) {
+            buttons[j] = document.getElementById(names[j]);
+            buttons[j].addEventListener('click', function () {
+
+                if (!frontside) {
+                    card.classList.toggle('is-flipped');
+                    frontside = !frontside;
+                }
+                
+                const current_word = word_list[i].split('#').slice(0, 2).join('#')
+                document.getElementById('front').innerHTML = word_list[i].split('#')[1];
+
+                setTimeout(function() {
+                    document.getElementById('back').innerHTML = word_list[i].split('#')[0];
+                    i++;
+                    if (i + wait_times[j] > word_list.length) {
+                        word_list.push(current_word + '#' + 'abcd'[j]);
+                    }
+                    else {
+                        word_list.splice(i + wait_times[j], 0, current_word + '#' + 'abcd'[j]);
+                    }  
+                }, 500);
+          
+            })
+        }
+
+        let soon = document.getElementById('soon');
+        soon.addEventListener('click', function() {
+            const current_letter = word_list[i].split('#')[2];
+            wait_times['abcd'.indexOf(current_letter)]++;
+        })
+
+        let late = document.getElementById('late');
+        late.addEventListener('click', function() {
+            const current_letter = word_list[i].split('#')[2];
+            if (wait_times['abcd'.indexOf(current_letter)] > 0) {
+                wait_times['abcd'.indexOf(current_letter)]--;
+            }
+        })
+    </script>
+
+</body>
+
+</html>
